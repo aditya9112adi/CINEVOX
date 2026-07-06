@@ -1,0 +1,123 @@
+.login-bg {
+  min-height: 100vh;
+  background-image: url('https://assets.ccbp.in/frontend/react-js/movies-app/login-bg.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.login-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.login-logo {
+  width: 140px;
+  margin-top: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-card {
+  background-color: rgba(0, 0, 0, 0.88);
+  border-radius: 8px;
+  padding: 48px 48px 60px;
+  width: 440px;
+  max-width: 90vw;
+  margin: auto;
+  margin-bottom: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 32px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaaaaa;
+  letter-spacing: 1px;
+}
+
+.input-field {
+  background-color: #454545;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 16px;
+  padding: 14px 16px;
+  outline: none;
+  transition: background-color 0.2s;
+  font-family: 'Roboto', sans-serif;
+}
+
+.input-field:focus {
+  background-color: #555555;
+}
+
+.input-field::placeholder {
+  color: #888888;
+}
+
+.login-error {
+  color: #D81F26;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -4px;
+}
+
+.sign-in-btn {
+  background-color: #D81F26;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.2s, transform 0.1s;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+.sign-in-btn:hover {
+  background-color: #b01820;
+  transform: translateY(-1px);
+}
+
+.sign-in-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+  .login-card {
+    padding: 32px 24px 44px;
+  }
+
+  .login-title {
+    font-size: 26px;
+  }
+}

@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom'
+import Cookies from 'js-cookie'
+import ProtectedRoute from './components/ProtectedRoute'
+import LoginRoute from './components/LoginRoute'
+import HomeRoute from './components/HomeRoute'
+import PopularRoute from './components/PopularRoute'
+import MovieItemDetails from './components/MovieItemDetails'
+import SearchRoute from './components/SearchRoute'
+import AccountRoute from './components/AccountRoute'
+import NotFoundRoute from './components/NotFoundRoute'
+import './App.css'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => (
+  <BrowserRouter>
+    <Switch>
+      <Route
+        exact
+        path="/login"
+        render={props => {
+          const jwtToken = Cookies.get('jwt_token')
+          if (jwtToken !== undefined) {
+            return <Redirect to="/" />
+          }
+          return <LoginRoute {...props} />
+        }}
+      />
+      <ProtectedRoute exact path="/" component={HomeRoute} />
+      <ProtectedRoute exact path="/popular" component={PopularRoute} />
+      <ProtectedRoute exact path="/movies/:id" component={MovieItemDetails} />
+      <ProtectedRoute exact path="/search" component={SearchRoute} />
+      <ProtectedRoute exact path="/account" component={AccountRoute} />
+      <Route path="/not-found" component={NotFoundRoute} />
+      <Redirect to="/not-found" />
+    </Switch>
+  </BrowserRouter>
+)
 
-export default App;
+export default App

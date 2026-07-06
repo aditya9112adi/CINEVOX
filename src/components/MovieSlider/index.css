@@ -1,0 +1,35 @@
+.slider-container {
+  padding: 0 40px;
+}
+
+.slick-prev,
+.slick-next {
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+}
+
+.slick-prev {
+  left: -4px;
+}
+
+.slick-next {
+  right: -4px;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  font-size: 36px;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.slick-disabled:before {
+  opacity: 0.3;
+}
+
+@media (max-width: 767px) {
+  .slider-container {
+    padding: 0 20px;
+  }
+}
