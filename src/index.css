@@ -29,3 +29,12 @@ ul {
 img {
   max-width: 100%;
 }
+
+/* Global loader - used by LoaderView in all routes */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+  min-height: 200px;
+}
