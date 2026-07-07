@@ -3,6 +3,7 @@ import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom'
 import Cookies from 'js-cookie'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginRoute from './components/LoginRoute'
+import RegisterRoute from './components/RegisterRoute'
 import HomeRoute from './components/HomeRoute'
 import PopularRoute from './components/PopularRoute'
 import MovieItemDetails from './components/MovieItemDetails'
@@ -23,6 +24,17 @@ const App = () => (
             return <Redirect to="/" />
           }
           return <LoginRoute {...props} />
+        }}
+      />
+      <Route
+        exact
+        path="/register"
+        render={props => {
+          const jwtToken = Cookies.get('jwt_token')
+          if (jwtToken !== undefined) {
+            return <Redirect to="/" />
+          }
+          return <RegisterRoute {...props} />
         }}
       />
       <ProtectedRoute exact path="/" component={HomeRoute} />

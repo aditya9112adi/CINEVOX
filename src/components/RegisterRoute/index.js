@@ -1,14 +1,15 @@
 import React, {Component} from 'react'
 import {Link} from 'react-router-dom'
-import Cookies from 'js-cookie'
 import './index.css'
 
-class LoginRoute extends Component {
+class RegisterRoute extends Component {
   state = {
     username: '',
     password: '',
     errorMsg: '',
     showError: false,
+    successMsg: '',
+    showSuccess: false,
   }
 
   onChangeUsername = e => {
@@ -19,24 +20,29 @@ class LoginRoute extends Component {
     this.setState({password: e.target.value})
   }
 
-  onSubmitSuccess = jwtToken => {
-    const {history} = this.props
-    const {username, password} = this.state
-    Cookies.set('jwt_token', jwtToken, {expires: 30})
-    Cookies.set('username', username, {expires: 30})
-    Cookies.set('password', password, {expires: 30})
-    history.replace('/')
+  onSubmitSuccess = message => {
+    this.setState({
+      successMsg: message,
+      showSuccess: true,
+      showError: false,
+      username: '',
+      password: '',
+    })
+    setTimeout(() => {
+      const {history} = this.props
+      history.replace('/login')
+    }, 2000)
   }
 
   onSubmitFailure = errorMsg => {
-    this.setState({errorMsg, showError: true})
+    this.setState({errorMsg, showError: true, showSuccess: false})
   }
 
   onSubmitForm = async e => {
     e.preventDefault()
     const {username, password} = this.state
     const userDetails = {username, password}
-    const url = 'http://localhost:5000/api/login'
+    const url = 'http://localhost:5000/api/register'
     const options = {
       method: 'POST',
       headers: {
@@ -50,7 +56,7 @@ class LoginRoute extends Component {
       const data = await response.json()
 
       if (response.ok) {
-        this.onSubmitSuccess(data.jwt_token)
+        this.onSubmitSuccess(data.message)
       } else {
         this.onSubmitFailure(data.error_msg)
       }
@@ -60,7 +66,7 @@ class LoginRoute extends Component {
   }
 
   render() {
-    const {username, password, showError, errorMsg} = this.state
+    const {username, password, showError, errorMsg, showSuccess, successMsg} = this.state
 
     return (
       <div className="login-bg">
@@ -70,7 +76,7 @@ class LoginRoute extends Component {
           alt="login website logo"
         />
         <div className="login-card">
-          <h1 className="login-title">Sign In</h1>
+          <h1 className="login-title">Register</h1>
           <form className="login-form" onSubmit={this.onSubmitForm}>
             <div className="input-group">
               <label className="input-label" htmlFor="username">
@@ -99,11 +105,12 @@ class LoginRoute extends Component {
               />
             </div>
             {showError && <p className="login-error">*{errorMsg}</p>}
+            {showSuccess && <p className="register-success">*{successMsg} Redirecting...</p>}
             <button className="sign-in-btn" type="submit">
-              Sign In
+              Register
             </button>
             <p className="login-register-link">
-              New to Movies App? <Link to="/register">Register Now</Link>
+              Already have an account? <Link to="/login">Sign In</Link>
             </p>
           </form>
         </div>
@@ -112,4 +119,4 @@ class LoginRoute extends Component {
   }
 }
 
-export default LoginRoute
+export default RegisterRoute

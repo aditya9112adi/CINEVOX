@@ -1,0 +1,8 @@
+@import '../LoginRoute/index.css';
+
+.register-success {
+  color: #0fce7c;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -4px;
+}
