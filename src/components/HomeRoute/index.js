@@ -5,6 +5,7 @@ import Footer from '../Footer'
 import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
+import VideoPlayer from '../VideoPlayer'
 import './index.css'
 
 const apiStatusConstants = {
@@ -25,6 +26,7 @@ class HomeRoute extends Component {
     heroBg: '',
     heroTitle: '',
     heroOverview: '',
+    showPlayer: false,
   }
 
   componentDidMount() {
@@ -159,7 +161,11 @@ class HomeRoute extends Component {
             <h1 className="hero-title">{heroTitle}</h1>
             <p className="hero-overview">{heroOverview}</p>
             <div className="hero-buttons">
-              <button className="play-btn" type="button">
+              <button
+                className="play-btn"
+                type="button"
+                onClick={() => this.setState({showPlayer: true})}
+              >
                 &#9654; Play
               </button>
               <button className="more-info-btn" type="button">
@@ -181,10 +187,20 @@ class HomeRoute extends Component {
       topRatedMovies,
       originalsStatus,
       originalsMovies,
+      showPlayer,
+      heroBg,
+      heroTitle,
     } = this.state
 
     return (
       <div className="home-container">
+        {showPlayer && (
+          <VideoPlayer
+            title={heroTitle}
+            backdropPath={heroBg}
+            onClose={() => this.setState({showPlayer: false})}
+          />
+        )}
         <Header />
         {this.renderHero()}
         <div className="home-content">

@@ -62,6 +62,52 @@
   color: #e5e5e5;
   max-width: 650px;
   line-height: 1.75;
+  margin-bottom: 32px;
+}
+
+.details-play-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.details-play-btn {
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 13px 40px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.details-play-btn:hover {
+  background-color: rgba(255, 255, 255, 0.85);
+  transform: translateY(-2px);
+}
+
+.details-more-btn {
+  background-color: rgba(109, 109, 110, 0.7);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 13px 40px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+  font-family: 'Roboto', sans-serif;
+}
+
+.details-more-btn:hover {
+  background-color: rgba(109, 109, 110, 0.5);
+  transform: translateY(-2px);
 }
 
 .details-info {

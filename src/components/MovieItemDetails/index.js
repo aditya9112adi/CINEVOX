@@ -6,6 +6,7 @@ import Footer from '../Footer'
 import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
+import VideoPlayer from '../VideoPlayer'
 import './index.css'
 
 const apiStatusConstants = {
@@ -19,6 +20,7 @@ class MovieItemDetails extends Component {
   state = {
     status: apiStatusConstants.initial,
     movieData: null,
+    showPlayer: false,
   }
 
   componentDidMount() {
@@ -114,8 +116,17 @@ class MovieItemDetails extends Component {
     const releaseDateStr = this.formatDate(releaseDate)
     const releaseYear = releaseDate ? releaseDate.split('-')[0] : ''
 
+    const {showPlayer} = this.state
+
     return (
       <>
+        {showPlayer && (
+          <VideoPlayer
+            title={title}
+            backdropPath={backdropPath}
+            onClose={() => this.setState({showPlayer: false})}
+          />
+        )}
         <div
           className="details-hero"
           style={{backgroundImage: `url(${backdropPath})`}}
@@ -128,6 +139,18 @@ class MovieItemDetails extends Component {
               <span className="details-year">{releaseYear}</span>
             </div>
             <p className="details-overview">{overview}</p>
+            <div className="details-play-row">
+              <button
+                className="details-play-btn"
+                type="button"
+                onClick={() => this.setState({showPlayer: true})}
+              >
+                &#9654; Play
+              </button>
+              <button className="details-more-btn" type="button">
+                More Info
+              </button>
+            </div>
           </div>
         </div>
         <div className="details-info">
