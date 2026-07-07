@@ -1,27 +1,9 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const fs = require('fs').promises
-const path = require('path')
+const User = require('../models/User')
 
 const router = express.Router()
-const USERS_FILE = path.join(__dirname, '../users.json')
-
-// Helper function to read users from JSON file
-async function readUsers() {
-  try {
-    const data = await fs.readFile(USERS_FILE, 'utf8')
-    return JSON.parse(data)
-  } catch (error) {
-    // If file doesn't exist, return empty list
-    return []
-  }
-}
-
-// Helper function to write users to JSON file
-async function writeUsers(users) {
-  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8')
-}
 
 // ============================
 // POST /api/register
@@ -45,11 +27,8 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({error_msg: 'Password must be at least 6 characters'})
     }
 
-    // --- Check if username already exists in local JSON ---
-    const users = await readUsers()
-    const existingUser = users.find(
-      u => u.username.toLowerCase() === trimmedUsername.toLowerCase(),
-    )
+    // --- Check if username already exists in MongoDB ---
+    const existingUser = await User.findOne({username: trimmedUsername})
     if (existingUser) {
       return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
     }
@@ -58,21 +37,21 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    // --- Add user and save ---
-    const newUser = {
-      id: Date.now().toString(),
+    // --- Save user to MongoDB ---
+    const newUser = new User({
       username: trimmedUsername,
       password: hashedPassword,
-      createdAt: new Date().toISOString(),
-    }
-    users.push(newUser)
-    await writeUsers(users)
+    })
+    await newUser.save()
 
     res.status(201).json({
       message: 'Registration successful! You can now log in.',
     })
   } catch (error) {
     console.error('Register error:', error)
+    if (error.code === 11000) {
+      return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
+    }
     res.status(500).json({error_msg: 'Server error. Please try again.'})
   }
 })
@@ -91,11 +70,8 @@ router.post('/login', async (req, res) => {
 
     const trimmedUsername = username.trim()
 
-    // --- Find user in local JSON ---
-    const users = await readUsers()
-    const user = users.find(
-      u => u.username.toLowerCase() === trimmedUsername.toLowerCase(),
-    )
+    // --- Find user in MongoDB ---
+    const user = await User.findOne({username: trimmedUsername})
     if (!user) {
       return res.status(401).json({error_msg: 'Username not registered. Please register first.'})
     }
