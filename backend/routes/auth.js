@@ -1,9 +1,27 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const User = require('../models/User')
+const fs = require('fs').promises
+const path = require('path')
 
 const router = express.Router()
+const USERS_FILE = path.join(__dirname, '../users.json')
+
+// Helper function to read users from JSON file
+async function readUsers() {
+  try {
+    const data = await fs.readFile(USERS_FILE, 'utf8')
+    return JSON.parse(data)
+  } catch (error) {
+    // If file doesn't exist, return empty list
+    return []
+  }
+}
+
+// Helper function to write users to JSON file
+async function writeUsers(users) {
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8')
+}
 
 // ============================
 // POST /api/register
@@ -17,7 +35,9 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({error_msg: 'Username and password are required'})
     }
 
-    if (username.trim().length < 3) {
+    const trimmedUsername = username.trim()
+
+    if (trimmedUsername.length < 3) {
       return res.status(400).json({error_msg: 'Username must be at least 3 characters'})
     }
 
@@ -25,31 +45,34 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({error_msg: 'Password must be at least 6 characters'})
     }
 
-    // --- Check if username already exists ---
-    const existingUser = await User.findOne({username: username.trim()})
+    // --- Check if username already exists in local JSON ---
+    const users = await readUsers()
+    const existingUser = users.find(
+      u => u.username.toLowerCase() === trimmedUsername.toLowerCase(),
+    )
     if (existingUser) {
       return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
     }
 
-    // --- Hash password (salt rounds: 10) ---
+    // --- Hash password ---
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    // --- Save user to MongoDB ---
-    const newUser = new User({
-      username: username.trim(),
+    // --- Add user and save ---
+    const newUser = {
+      id: Date.now().toString(),
+      username: trimmedUsername,
       password: hashedPassword,
-    })
-    await newUser.save()
+      createdAt: new Date().toISOString(),
+    }
+    users.push(newUser)
+    await writeUsers(users)
 
     res.status(201).json({
       message: 'Registration successful! You can now log in.',
     })
   } catch (error) {
     console.error('Register error:', error)
-    if (error.code === 11000) {
-      return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
-    }
     res.status(500).json({error_msg: 'Server error. Please try again.'})
   }
 })
@@ -66,8 +89,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({error_msg: 'Username and password are required'})
     }
 
-    // --- Find user ---
-    const user = await User.findOne({username: username.trim()})
+    const trimmedUsername = username.trim()
+
+    // --- Find user in local JSON ---
+    const users = await readUsers()
+    const user = users.find(
+      u => u.username.toLowerCase() === trimmedUsername.toLowerCase(),
+    )
     if (!user) {
       return res.status(401).json({error_msg: 'Username not registered. Please register first.'})
     }
