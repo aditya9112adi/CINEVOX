@@ -69,21 +69,37 @@ router.post('/login', async (req, res) => {
     // --- Find user ---
     const user = await User.findOne({username: username.trim()})
     if (!user) {
-      return res.status(401).json({error_msg: 'Invalid username or password'})
+      return res.status(401).json({error_msg: 'Username not registered. Please register first.'})
     }
 
     // --- Verify password ---
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-      return res.status(401).json({error_msg: 'Invalid username or password'})
+      return res.status(401).json({error_msg: 'Incorrect password. Please try again.'})
     }
 
-    // --- Generate JWT ---
-    const jwtToken = jwt.sign(
-      {id: user._id, username: user.username},
-      process.env.JWT_SECRET,
-      {expiresIn: '30d'},
-    )
+    // --- Fetch NxtWave JWT token to authenticate movie endpoints ---
+    let jwtToken = ''
+    try {
+      const nxtWaveResponse = await fetch('https://apis.ccbp.in/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'rahul',
+          password: 'rahul@2021',
+        }),
+      })
+      const nxtWaveData = await nxtWaveResponse.json()
+      if (nxtWaveResponse.ok) {
+        jwtToken = nxtWaveData.jwt_token
+      } else {
+        return res.status(500).json({error_msg: 'Failed to retrieve movie session token.'})
+      }
+    } catch (fetchError) {
+      return res.status(500).json({error_msg: 'Connection error with movie content server.'})
+    }
 
     res.status(200).json({
       jwt_token: jwtToken,
