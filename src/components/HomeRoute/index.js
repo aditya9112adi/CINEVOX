@@ -6,6 +6,7 @@ import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
 import VideoPlayer from '../VideoPlayer'
+import {fetchFromTMDB, getTmdbImageUrl} from '../../utils/tmdb'
 import './index.css'
 
 const apiStatusConstants = {
@@ -39,29 +40,21 @@ class HomeRoute extends Component {
 
   transformMovie = movie => ({
     id: movie.id,
-    backdropPath: movie.backdrop_path,
-    posterPath: movie.poster_path,
-    title: movie.title,
+    backdropPath: getTmdbImageUrl(movie.backdrop_path, 'original'),
+    posterPath: getTmdbImageUrl(movie.poster_path),
+    title: movie.title || movie.name,
     overview: movie.overview,
   })
 
   fetchTrendingMovies = async () => {
     this.setState({trendingStatus: apiStatusConstants.loading})
-    const jwtToken = this.getJwtToken()
-    const url = 'https://apis.ccbp.in/movies-app/trending-movies'
-    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const response = await fetch(url, options)
-      if (response.ok) {
-        const data = await response.json()
-        const movies = data.results.map(this.transformMovie)
-        this.setState({
-          trendingMovies: movies,
-          trendingStatus: apiStatusConstants.success,
-        })
-      } else {
-        this.setState({trendingStatus: apiStatusConstants.failure})
-      }
+      const data = await fetchFromTMDB('https://api.themoviedb.org/3/trending/all/day')
+      const movies = data.results.map(this.transformMovie)
+      this.setState({
+        trendingMovies: movies,
+        trendingStatus: apiStatusConstants.success,
+      })
     } catch {
       this.setState({trendingStatus: apiStatusConstants.failure})
     }
@@ -69,21 +62,13 @@ class HomeRoute extends Component {
 
   fetchTopRatedMovies = async () => {
     this.setState({topRatedStatus: apiStatusConstants.loading})
-    const jwtToken = this.getJwtToken()
-    const url = 'https://apis.ccbp.in/movies-app/top-rated-movies'
-    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const response = await fetch(url, options)
-      if (response.ok) {
-        const data = await response.json()
-        const movies = data.results.map(this.transformMovie)
-        this.setState({
-          topRatedMovies: movies,
-          topRatedStatus: apiStatusConstants.success,
-        })
-      } else {
-        this.setState({topRatedStatus: apiStatusConstants.failure})
-      }
+      const data = await fetchFromTMDB('https://api.themoviedb.org/3/movie/top_rated')
+      const movies = data.results.map(this.transformMovie)
+      this.setState({
+        topRatedMovies: movies,
+        topRatedStatus: apiStatusConstants.success,
+      })
     } catch {
       this.setState({topRatedStatus: apiStatusConstants.failure})
     }
@@ -91,26 +76,18 @@ class HomeRoute extends Component {
 
   fetchOriginals = async () => {
     this.setState({originalsStatus: apiStatusConstants.loading})
-    const jwtToken = this.getJwtToken()
-    const url = 'https://apis.ccbp.in/movies-app/originals'
-    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const response = await fetch(url, options)
-      if (response.ok) {
-        const data = await response.json()
-        const movies = data.results.map(this.transformMovie)
-        const randomIndex = Math.floor(Math.random() * movies.length)
-        const heroMovie = movies[randomIndex]
-        this.setState({
-          originalsMovies: movies,
-          originalsStatus: apiStatusConstants.success,
-          heroBg: heroMovie ? heroMovie.backdropPath : '',
-          heroTitle: heroMovie ? heroMovie.title : '',
-          heroOverview: heroMovie ? heroMovie.overview : '',
-        })
-      } else {
-        this.setState({originalsStatus: apiStatusConstants.failure})
-      }
+      const data = await fetchFromTMDB('https://api.themoviedb.org/3/discover/tv?with_networks=213')
+      const movies = data.results.map(this.transformMovie)
+      const randomIndex = Math.floor(Math.random() * movies.length)
+      const heroMovie = movies[randomIndex]
+      this.setState({
+        originalsMovies: movies,
+        originalsStatus: apiStatusConstants.success,
+        heroBg: heroMovie ? heroMovie.backdropPath : '',
+        heroTitle: heroMovie ? heroMovie.title : '',
+        heroOverview: heroMovie ? heroMovie.overview : '',
+      })
     } catch {
       this.setState({originalsStatus: apiStatusConstants.failure})
     }

@@ -7,6 +7,7 @@ import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
 import VideoPlayer from '../VideoPlayer'
+import {fetchFromTMDB, getTmdbImageUrl} from '../../utils/tmdb'
 import './index.css'
 
 const apiStatusConstants = {
@@ -38,43 +39,45 @@ class MovieItemDetails extends Component {
     this.setState({status: apiStatusConstants.loading})
     const {match} = this.props
     const {id} = match.params
-    const jwtToken = Cookies.get('jwt_token')
-    const url = `https://apis.ccbp.in/movies-app/movies/${id}`
-    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const response = await fetch(url, options)
-      if (response.ok) {
-        const data = await response.json()
-        const d = data.movie_details
-        const movieData = {
-          id: d.id,
-          backdropPath: d.backdrop_path,
-          posterPath: d.poster_path,
-          title: d.title,
-          overview: d.overview,
-          adult: d.adult,
-          budget: d.budget,
-          genres: d.genres,
-          releaseDate: d.release_date,
-          runtime: d.runtime,
-          similarMovies: d.similar_movies.map(m => ({
+      let d
+      let similarData
+      try {
+        d = await fetchFromTMDB(`https://api.themoviedb.org/3/movie/${id}`)
+        similarData = await fetchFromTMDB(`https://api.themoviedb.org/3/movie/${id}/similar`)
+      } catch {
+        d = await fetchFromTMDB(`https://api.themoviedb.org/3/tv/${id}`)
+        similarData = await fetchFromTMDB(`https://api.themoviedb.org/3/tv/${id}/similar`)
+      }
+
+      const movieData = {
+        id: d.id,
+        backdropPath: getTmdbImageUrl(d.backdrop_path, 'original'),
+        posterPath: getTmdbImageUrl(d.poster_path),
+        title: d.title || d.name,
+        overview: d.overview,
+        adult: d.adult || false,
+        budget: d.budget || 0,
+        genres: d.genres || [],
+        releaseDate: d.release_date || d.first_air_date || '',
+        runtime: d.runtime || (d.episode_run_time && d.episode_run_time.length > 0 ? d.episode_run_time[0] : 0),
+        similarMovies: similarData.results
+          .filter(m => m.poster_path)
+          .map(m => ({
             id: m.id,
-            backdropPath: m.backdrop_path,
-            posterPath: m.poster_path,
-            title: m.title,
+            backdropPath: getTmdbImageUrl(m.backdrop_path, 'original'),
+            posterPath: getTmdbImageUrl(m.poster_path),
+            title: m.title || m.name,
             overview: m.overview,
           })),
-          spokenLanguages: d.spoken_languages.map(l => ({
-            id: l.id,
-            englishName: l.english_name,
-          })),
-          voteAverage: d.vote_average,
-          voteCount: d.vote_count,
-        }
-        this.setState({movieData, status: apiStatusConstants.success})
-      } else {
-        this.setState({status: apiStatusConstants.failure})
+        spokenLanguages: (d.spoken_languages || []).map(l => ({
+          id: l.iso_639_1,
+          englishName: l.english_name,
+        })),
+        voteAverage: d.vote_average,
+        voteCount: d.vote_count,
       }
+      this.setState({movieData, status: apiStatusConstants.success})
     } catch {
       this.setState({status: apiStatusConstants.failure})
     }

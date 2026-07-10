@@ -5,7 +5,7 @@ const BrowseLanguagesRoute = props => (
   <GenericCategoryRoute
     {...props}
     title="Browse by Languages"
-    apiEndpoint="https://apis.ccbp.in/movies-app/trending-movies"
+    apiEndpoint="https://api.themoviedb.org/3/discover/movie?with_original_language=hi"
     sections={[
       'Hindi',
       'English',
