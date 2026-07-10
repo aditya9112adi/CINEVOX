@@ -25,8 +25,31 @@ class SearchRoute extends Component {
     moviesPerPage: 12,
   }
 
+  debounceTimer = null
+
+  componentWillUnmount() {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer)
+  }
+
   onChangeSearch = e => {
-    this.setState({searchInput: e.target.value})
+    const value = e.target.value
+    this.setState({searchInput: value})
+
+    // Clear previous debounce timer
+    if (this.debounceTimer) clearTimeout(this.debounceTimer)
+
+    if (value.trim() === '') {
+      this.setState({status: apiStatusConstants.initial, movies: []})
+      return
+    }
+
+    // Fire search 300ms after user stops typing
+    this.debounceTimer = setTimeout(() => {
+      this.setState(
+        {searchValue: value.trim(), currentPage: 1},
+        this.fetchSearchMovies,
+      )
+    }, 300)
   }
 
   onClickSearch = () => {
@@ -165,8 +188,8 @@ class SearchRoute extends Component {
           <Link to="/">
             <img
               className="search-header-logo"
-              src="https://res.cloudinary.com/dkk6a7svu/image/upload/v1666018279/movies-app/Group_7399_qziixb.png"
-              alt="website logo"
+              src="/cinevox-logo.png"
+              alt="cinevox logo"
             />
           </Link>
           <div className="search-input-container">

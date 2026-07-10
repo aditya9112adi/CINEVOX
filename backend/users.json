@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1783416036905",
+    "username": "rahul",
+    "password": "$2b$10$B/sVe74HPrgSr8tYKlV.cuih2yo7CaKYf3j/NFN5hS0c4vwtptlR2",
+    "createdAt": "2026-07-07T09:20:36.905Z"
+  },
+  {
+    "id": "1783416246646",
+    "username": "Akshat",
+    "password": "$2b$10$FV3PC/MGPw5GNgcfCv.ggOSTFFSjuOPqdjL5NuyzDtzD1FwwpvDkW",
+    "createdAt": "2026-07-07T09:24:06.646Z"
+  },
+  {
+    "id": "1783417149056",
+    "username": "Madhushri",
+    "password": "$2b$10$/PE2/jgUmeP9jXak9z5fkuwXvoeSqSGS7.IAUjV4Y0lwQVUl7DA/O",
+    "createdAt": "2026-07-07T09:39:09.100Z"
+  }
+]

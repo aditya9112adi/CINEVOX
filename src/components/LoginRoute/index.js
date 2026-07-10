@@ -1,14 +1,14 @@
 import React, {Component} from 'react'
-import {Link} from 'react-router-dom'
 import Cookies from 'js-cookie'
+import {Link} from 'react-router-dom'
 import './index.css'
 
 class LoginRoute extends Component {
   state = {
     username: '',
     password: '',
+    showSubmitError: false,
     errorMsg: '',
-    showError: false,
   }
 
   onChangeUsername = e => {
@@ -21,54 +21,50 @@ class LoginRoute extends Component {
 
   onSubmitSuccess = jwtToken => {
     const {history} = this.props
-    const {username, password} = this.state
     Cookies.set('jwt_token', jwtToken, {expires: 30})
-    Cookies.set('username', username, {expires: 30})
-    Cookies.set('password', password, {expires: 30})
+    Cookies.set('username', this.state.username, {expires: 30})
     history.replace('/')
   }
 
   onSubmitFailure = errorMsg => {
-    this.setState({errorMsg, showError: true})
+    this.setState({showSubmitError: true, errorMsg})
   }
 
   onSubmitForm = async e => {
     e.preventDefault()
     const {username, password} = this.state
-    const userDetails = {username, password}
     const url = 'http://localhost:5000/api/login'
     const options = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userDetails),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password}),
     }
-
     try {
       const response = await fetch(url, options)
       const data = await response.json()
-
       if (response.ok) {
         this.onSubmitSuccess(data.jwt_token)
       } else {
         this.onSubmitFailure(data.error_msg)
       }
-    } catch (error) {
-      this.onSubmitFailure('Server Connection Error. Is your backend running?')
+    } catch {
+      this.onSubmitFailure('Server connection error. Is your backend running?')
     }
   }
 
   render() {
-    const {username, password, showError, errorMsg} = this.state
+    const {username, password, showSubmitError, errorMsg} = this.state
 
     return (
       <div className="login-bg">
-        <img
-          className="login-logo"
-          src="https://res.cloudinary.com/dkk6a7svu/image/upload/v1666018279/movies-app/Group_7399_qziixb.png"
-          alt="login website logo"
-        />
+        <div className="login-brand">
+          <img
+            className="login-logo"
+            src="/cinevox-logo.png"
+            alt="cinevox logo"
+          />
+          <span className="login-brand-text">CINEVOX</span>
+        </div>
         <div className="login-card">
           <h1 className="login-title">Sign In</h1>
           <form className="login-form" onSubmit={this.onSubmitForm}>
@@ -98,12 +94,13 @@ class LoginRoute extends Component {
                 onChange={this.onChangePassword}
               />
             </div>
-            {showError && <p className="login-error">*{errorMsg}</p>}
+            {showSubmitError && <p className="login-error">*{errorMsg}</p>}
             <button className="sign-in-btn" type="submit">
               Sign In
             </button>
             <p className="login-register-link">
-              New to Movies App? <Link to="/register">Register Now</Link>
+              New to CineVox?{' '}
+              <Link to="/register">Register now</Link>
             </p>
           </form>
         </div>

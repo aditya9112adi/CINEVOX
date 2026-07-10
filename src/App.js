@@ -10,6 +10,11 @@ import MovieItemDetails from './components/MovieItemDetails'
 import SearchRoute from './components/SearchRoute'
 import AccountRoute from './components/AccountRoute'
 import NotFoundRoute from './components/NotFoundRoute'
+import ShowsRoute from './components/ShowsRoute'
+import MoviesListRoute from './components/MoviesListRoute'
+import GamesRoute from './components/GamesRoute'
+import MyListRoute from './components/MyListRoute'
+import BrowseLanguagesRoute from './components/BrowseLanguagesRoute'
 import './App.css'
 
 const App = () => (
@@ -42,6 +47,11 @@ const App = () => (
       <ProtectedRoute exact path="/movies/:id" component={MovieItemDetails} />
       <ProtectedRoute exact path="/search" component={SearchRoute} />
       <ProtectedRoute exact path="/account" component={AccountRoute} />
+      <ProtectedRoute exact path="/shows" component={ShowsRoute} />
+      <ProtectedRoute exact path="/movies-list" component={MoviesListRoute} />
+      <ProtectedRoute exact path="/games" component={GamesRoute} />
+      <ProtectedRoute exact path="/my-list" component={MyListRoute} />
+      <ProtectedRoute exact path="/browse-languages" component={BrowseLanguagesRoute} />
       <Route path="/not-found" component={NotFoundRoute} />
       <Redirect to="/not-found" />
     </Switch>

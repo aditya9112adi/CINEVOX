@@ -6,111 +6,89 @@ class RegisterRoute extends Component {
   state = {
     username: '',
     password: '',
-    errorMsg: '',
     showError: false,
-    successMsg: '',
-    showSuccess: false,
+    errorMsg: '',
+    success: false,
   }
 
-  onChangeUsername = e => {
-    this.setState({username: e.target.value})
-  }
-
-  onChangePassword = e => {
-    this.setState({password: e.target.value})
-  }
-
-  onSubmitSuccess = message => {
-    this.setState({
-      successMsg: message,
-      showSuccess: true,
-      showError: false,
-      username: '',
-      password: '',
-    })
-    setTimeout(() => {
-      const {history} = this.props
-      history.replace('/login')
-    }, 2000)
-  }
-
-  onSubmitFailure = errorMsg => {
-    this.setState({errorMsg, showError: true, showSuccess: false})
-  }
+  onChangeUsername = e => this.setState({username: e.target.value})
+  onChangePassword = e => this.setState({password: e.target.value})
 
   onSubmitForm = async e => {
     e.preventDefault()
     const {username, password} = this.state
-    const userDetails = {username, password}
     const url = 'http://localhost:5000/api/register'
     const options = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userDetails),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password}),
     }
-
     try {
       const response = await fetch(url, options)
       const data = await response.json()
-
       if (response.ok) {
-        this.onSubmitSuccess(data.message)
+        this.setState({success: true, showError: false})
+        setTimeout(() => this.props.history.replace('/login'), 1500)
       } else {
-        this.onSubmitFailure(data.error_msg)
+        this.setState({showError: true, errorMsg: data.error_msg || 'Registration failed'})
       }
-    } catch (error) {
-      this.onSubmitFailure('Server Connection Error. Is your backend running?')
+    } catch {
+      this.setState({showError: true, errorMsg: 'Server connection error. Is your backend running?'})
     }
   }
 
   render() {
-    const {username, password, showError, errorMsg, showSuccess, successMsg} = this.state
+    const {username, password, showError, errorMsg, success} = this.state
 
     return (
       <div className="login-bg">
-        <img
-          className="login-logo"
-          src="https://res.cloudinary.com/dkk6a7svu/image/upload/v1666018279/movies-app/Group_7399_qziixb.png"
-          alt="login website logo"
-        />
+        <div className="login-brand">
+          <img
+            className="login-logo"
+            src="/cinevox-logo.png"
+            alt="cinevox logo"
+          />
+          <span className="login-brand-text">CINEVOX</span>
+        </div>
         <div className="login-card">
           <h1 className="login-title">Register</h1>
+          {success && (
+            <p style={{color: '#2ecc71', textAlign: 'center', marginBottom: '12px', fontWeight: 600}}>
+              ✅ User registered successfully
+            </p>
+          )}
           <form className="login-form" onSubmit={this.onSubmitForm}>
             <div className="input-group">
-              <label className="input-label" htmlFor="username">
-                USERNAME
-              </label>
+              <label className="input-label" htmlFor="reg-username">USERNAME</label>
               <input
-                id="username"
+                id="reg-username"
                 className="input-field"
                 type="text"
-                placeholder="Username"
+                placeholder="Choose a username"
                 value={username}
                 onChange={this.onChangeUsername}
+                required
               />
             </div>
             <div className="input-group">
-              <label className="input-label" htmlFor="password">
-                PASSWORD
-              </label>
+              <label className="input-label" htmlFor="reg-password">PASSWORD</label>
               <input
-                id="password"
+                id="reg-password"
                 className="input-field"
                 type="password"
-                placeholder="Password"
+                placeholder="Create a password"
                 value={password}
                 onChange={this.onChangePassword}
+                required
               />
             </div>
             {showError && <p className="login-error">*{errorMsg}</p>}
-            {showSuccess && <p className="register-success">*{successMsg} Redirecting...</p>}
             <button className="sign-in-btn" type="submit">
-              Register
+              Create Account
             </button>
             <p className="login-register-link">
-              Already have an account? <Link to="/login">Sign In</Link>
+              Already have an account?{' '}
+              <Link to="/login">Sign In</Link>
             </p>
           </form>
         </div>

@@ -9,17 +9,11 @@ class AccountRoute extends Component {
     const {history} = this.props
     Cookies.remove('jwt_token')
     Cookies.remove('username')
-    Cookies.remove('password')
     history.replace('/login')
   }
 
   render() {
     const username = Cookies.get('username') || ''
-    const password = Cookies.get('password') || ''
-    const maskedPassword = password
-      .split('')
-      .map(() => '*')
-      .join('')
 
     return (
       <div className="account-container">
@@ -31,7 +25,7 @@ class AccountRoute extends Component {
             <div className="account-row">
               <p className="account-label">Member ship</p>
               <div className="account-details">
-                <p className="account-email">{username}@gmail.com</p>
+                <p className="account-email">{username}</p>
                 <p className="account-plan-badge">Premium &nbsp;&#183;&nbsp; Ultra HD</p>
               </div>
             </div>
@@ -54,8 +48,7 @@ class AccountRoute extends Component {
           </div>
           <hr className="account-divider" />
           <div className="account-user-summary">
-            <p className="account-username-text">{username}</p>
-            <p className="account-password-text">{maskedPassword}</p>
+            <p className="account-username-text">Username: {username}</p>
           </div>
         </div>
         <Footer />

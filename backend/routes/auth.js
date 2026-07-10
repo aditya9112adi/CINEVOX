@@ -1,6 +1,5 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 const router = express.Router()
@@ -11,48 +10,22 @@ const router = express.Router()
 router.post('/register', async (req, res) => {
   try {
     const {username, password} = req.body
-
-    // --- Validation ---
     if (!username || !password) {
       return res.status(400).json({error_msg: 'Username and password are required'})
     }
 
-    const trimmedUsername = username.trim()
-
-    if (trimmedUsername.length < 3) {
-      return res.status(400).json({error_msg: 'Username must be at least 3 characters'})
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({error_msg: 'Password must be at least 6 characters'})
-    }
-
-    // --- Check if username already exists in MongoDB ---
-    const existingUser = await User.findOne({username: trimmedUsername})
+    const existingUser = await User.findOne({username})
     if (existingUser) {
-      return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
+      return res.status(400).json({error_msg: 'Username already exists'})
     }
 
-    // --- Hash password ---
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, salt)
+    const user = new User({username, password})
+    await user.save()
 
-    // --- Save user to MongoDB ---
-    const newUser = new User({
-      username: trimmedUsername,
-      password: hashedPassword,
-    })
-    await newUser.save()
-
-    res.status(201).json({
-      message: 'Registration successful! You can now log in.',
-    })
+    res.status(201).json({message: 'User registered successfully'})
   } catch (error) {
-    console.error('Register error:', error)
-    if (error.code === 11000) {
-      return res.status(409).json({error_msg: 'Username already exists. Please choose another.'})
-    }
-    res.status(500).json({error_msg: 'Server error. Please try again.'})
+    console.error('Register Error:', error.message)
+    res.status(500).json({error_msg: 'Internal server error'})
   }
 })
 
@@ -62,56 +35,34 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const {username, password} = req.body
-
-    // --- Validation ---
     if (!username || !password) {
       return res.status(400).json({error_msg: 'Username and password are required'})
     }
 
-    const trimmedUsername = username.trim()
-
-    // --- Find user in MongoDB ---
-    const user = await User.findOne({username: trimmedUsername})
+    const user = await User.findOne({username})
     if (!user) {
-      return res.status(401).json({error_msg: 'Username not registered. Please register first.'})
+      return res.status(401).json({error_msg: 'Invalid username or password'})
     }
 
-    // --- Verify password ---
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
-      return res.status(401).json({error_msg: 'Incorrect password. Please try again.'})
+    if (password !== user.password) {
+      return res.status(401).json({error_msg: 'Invalid username or password'})
     }
 
-    // --- Fetch NxtWave JWT token to authenticate movie endpoints ---
-    let jwtToken = ''
-    try {
-      const nxtWaveResponse = await fetch('https://apis.ccbp.in/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'rahul',
-          password: 'rahul@2021',
-        }),
-      })
-      const nxtWaveData = await nxtWaveResponse.json()
-      if (nxtWaveResponse.ok) {
-        jwtToken = nxtWaveData.jwt_token
-      } else {
-        return res.status(500).json({error_msg: 'Failed to retrieve movie session token.'})
-      }
-    } catch (fetchError) {
-      return res.status(500).json({error_msg: 'Connection error with movie content server.'})
-    }
-
-    res.status(200).json({
-      jwt_token: jwtToken,
-      username: user.username,
+    // Fetch NxtWave movie content token
+    const nxtWaveResponse = await fetch('https://apis.ccbp.in/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: 'rahul', password: 'rahul@2021'}),
     })
+    const nxtWaveData = await nxtWaveResponse.json()
+    if (!nxtWaveResponse.ok) {
+      return res.status(500).json({error_msg: 'Failed to retrieve movie session token.'})
+    }
+
+    res.status(200).json({jwt_token: nxtWaveData.jwt_token})
   } catch (error) {
-    console.error('Login error:', error)
-    res.status(500).json({error_msg: 'Server error. Please try again.'})
+    console.error('Login Error:', error.message)
+    res.status(500).json({error_msg: 'Internal server error'})
   }
 })
 

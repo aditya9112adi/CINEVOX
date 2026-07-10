@@ -4,44 +4,70 @@ import {HiOutlineSearch} from 'react-icons/hi'
 import './index.css'
 
 class Header extends Component {
+  state = {
+    menuOpen: false,
+  }
+
   onClickSearch = () => {
     const {history} = this.props
     history.push('/search')
   }
 
+  toggleMenu = () => {
+    this.setState(prev => ({menuOpen: !prev.menuOpen}))
+  }
+
   render() {
     const {location} = this.props
+    const {menuOpen} = this.state
     const pathname = location ? location.pathname : ''
+
+    const navLinks = [
+      {label: 'Home', to: '/'},
+      {label: 'Shows', to: '/shows'},
+      {label: 'Movies', to: '/movies-list'},
+      {label: 'Games', to: '/games'},
+      {label: 'New & Popular', to: '/popular'},
+      {label: 'My List', to: '/my-list'},
+      {label: 'Browse by Languages', to: '/browse-languages'},
+    ]
 
     return (
       <nav className="header-nav">
-        <Link to="/">
-          <img
-            className="header-logo"
-            src="https://res.cloudinary.com/dkk6a7svu/image/upload/v1666018279/movies-app/Group_7399_qziixb.png"
-            alt="website logo"
-          />
-        </Link>
-        <ul className="header-links">
-          <li>
-            <Link
-              to="/"
-              className={`header-link ${pathname === '/' ? 'active-link' : ''}`}
-            >
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/popular"
-              className={`header-link ${
-                pathname === '/popular' ? 'active-link' : ''
-              }`}
-            >
-              Popular
-            </Link>
-          </li>
-        </ul>
+        <div className="header-left">
+          <Link to="/" className="header-brand">
+            <img
+              className="header-logo"
+              src="/cinevox-logo.png"
+              alt="cinevox logo"
+            />
+            <span className="header-brand-text">CINEVOX</span>
+          </Link>
+          {/* Desktop nav links */}
+          <ul className="header-links">
+            {navLinks.map(link => (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  className={`header-link ${pathname === link.to ? 'active-link' : ''}`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="header-hamburger"
+            onClick={this.toggleMenu}
+            aria-label="menu"
+          >
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+          </button>
+        </div>
         <div className="header-right">
           <button
             type="button"
@@ -59,6 +85,22 @@ class Header extends Component {
             />
           </Link>
         </div>
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <ul className="header-mobile-menu">
+            {navLinks.map(link => (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  className={`mobile-menu-link ${pathname === link.to ? 'active-link' : ''}`}
+                  onClick={() => this.setState({menuOpen: false})}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </nav>
     )
   }
