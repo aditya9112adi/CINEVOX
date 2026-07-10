@@ -33,7 +33,8 @@ class LoginRoute extends Component {
   onSubmitForm = async e => {
     e.preventDefault()
     const {username, password} = this.state
-    const url = 'http://localhost:5000/api/login'
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'
+    const url = `${backendUrl}/api/login`
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
