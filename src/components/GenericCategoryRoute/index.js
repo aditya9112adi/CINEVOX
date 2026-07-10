@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import Cookies from 'js-cookie'
 import Header from '../Header'
 import Footer from '../Footer'
 import MovieSlider from '../MovieSlider'

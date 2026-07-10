@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import Cookies from 'js-cookie'
 import {format, parseISO} from 'date-fns'
 import Header from '../Header'
 import Footer from '../Footer'

@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import Cookies from 'js-cookie'
 import {Link, withRouter} from 'react-router-dom'
 import {HiOutlineSearch} from 'react-icons/hi'
 import {FaGoogle, FaTwitter, FaInstagram, FaYoutube} from 'react-icons/fa'
