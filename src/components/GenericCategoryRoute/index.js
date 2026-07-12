@@ -5,7 +5,7 @@ import Footer from '../Footer'
 import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
-import {fetchFromTMDB, getTmdbImageUrl} from '../../utils/tmdb'
+import Cookies from 'js-cookie'
 import './index.css'
 
 const apiStatusConstants = {
@@ -28,16 +28,23 @@ class GenericCategoryRoute extends Component {
   fetchMovies = async () => {
     this.setState({status: apiStatusConstants.loading})
     const {apiEndpoint} = this.props
+    const jwtToken = Cookies.get('jwt_token')
+    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const data = await fetchFromTMDB(apiEndpoint)
-      const movies = data.results.map(m => ({
-        id: m.id,
-        posterPath: getTmdbImageUrl(m.poster_path),
-        backdropPath: getTmdbImageUrl(m.backdrop_path, 'original'),
-        title: m.title || m.name,
-        overview: m.overview,
-      }))
-      this.setState({apiMovies: movies, status: apiStatusConstants.success})
+      const response = await fetch(apiEndpoint, options)
+      if (response.ok) {
+        const data = await response.json()
+        const movies = data.results.map(m => ({
+          id: m.id,
+          posterPath: m.poster_path,
+          backdropPath: m.backdrop_path,
+          title: m.title,
+          overview: m.overview,
+        }))
+        this.setState({apiMovies: movies, status: apiStatusConstants.success})
+      } else {
+        this.setState({status: apiStatusConstants.failure})
+      }
     } catch {
       this.setState({status: apiStatusConstants.failure})
     }

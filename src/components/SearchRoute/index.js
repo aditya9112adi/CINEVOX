@@ -6,7 +6,7 @@ import {FaGoogle, FaTwitter, FaInstagram, FaYoutube} from 'react-icons/fa'
 import MovieCard from '../MovieCard'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
-import {fetchFromTMDB, getTmdbImageUrl} from '../../utils/tmdb'
+import Cookies from 'js-cookie'
 import './index.css'
 
 const apiStatusConstants = {
@@ -72,20 +72,24 @@ class SearchRoute extends Component {
   fetchSearchMovies = async () => {
     const {searchValue} = this.state
     this.setState({status: apiStatusConstants.loading})
-    const url = `https://api.themoviedb.org/3/search/multi?query=${searchValue}`
+    const jwtToken = Cookies.get('jwt_token')
+    const url = `https://apis.ccbp.in/movies-app/movies-search?search=${searchValue}`
+    const options = {headers: {Authorization: `Bearer ${jwtToken}`}}
     try {
-      const data = await fetchFromTMDB(url)
-      const movies = (data.results || [])
-        .filter(Boolean)
-        .filter(movie => movie.poster_path)
-        .map(movie => ({
+      const response = await fetch(url, options)
+      if (response.ok) {
+        const data = await response.json()
+        const movies = data.results.map(movie => ({
           id: movie.id,
-          backdropPath: getTmdbImageUrl(movie.backdrop_path, 'original'),
-          posterPath: getTmdbImageUrl(movie.poster_path),
-          title: movie.title || movie.name,
+          backdropPath: movie.backdrop_path,
+          posterPath: movie.poster_path,
+          title: movie.title,
           overview: movie.overview,
         }))
-      this.setState({movies, status: apiStatusConstants.success})
+        this.setState({movies, status: apiStatusConstants.success})
+      } else {
+        this.setState({status: apiStatusConstants.failure})
+      }
     } catch {
       this.setState({status: apiStatusConstants.failure})
     }

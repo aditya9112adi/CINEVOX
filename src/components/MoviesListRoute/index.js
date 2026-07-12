@@ -5,7 +5,7 @@ const MoviesListRoute = props => (
   <GenericCategoryRoute
     {...props}
     title="Movies"
-    apiEndpoint="https://api.themoviedb.org/3/movie/popular"
+    apiEndpoint="https://apis.ccbp.in/movies-app/top-rated-movies"
     sections={[
       'Top Rated Movies',
       'Action & Adventure',

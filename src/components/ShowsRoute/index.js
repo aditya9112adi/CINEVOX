@@ -5,7 +5,7 @@ const ShowsRoute = props => (
   <GenericCategoryRoute
     {...props}
     title="Shows"
-    apiEndpoint="https://api.themoviedb.org/3/tv/popular"
+    apiEndpoint="https://apis.ccbp.in/movies-app/originals"
     sections={[
       'Netflix Originals',
       'Drama Series',
