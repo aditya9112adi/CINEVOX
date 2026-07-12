@@ -16,7 +16,7 @@ export const fetchFromTMDB = async endpoint => {
   }
   const data = await response.json()
   // Defensive check: if it's an object but missing results array when expected
-  if (data && typeof data === 'object' && !('results' in data) && endpoint.includes('trending')) {
+  if (data && typeof data === 'object' && !('results' in data)) {
     data.results = []
   }
   return data

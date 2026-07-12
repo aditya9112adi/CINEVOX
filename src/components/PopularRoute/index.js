@@ -35,7 +35,7 @@ class PopularRoute extends Component {
       const response = await fetch(url, options)
       if (response.ok) {
         const data = await response.json()
-        const movies = data.results.map(movie => ({
+        const movies = (data.results || []).filter(Boolean).map(movie => ({
           id: movie.id,
           backdropPath: movie.backdrop_path,
           posterPath: movie.poster_path,

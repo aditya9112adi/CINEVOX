@@ -50,7 +50,7 @@ class HomeRoute extends Component {
     this.setState({trendingStatus: apiStatusConstants.loading})
     try {
       const data = await fetchFromTMDB('https://api.themoviedb.org/3/trending/all/day')
-      const movies = data.results.map(this.transformMovie)
+      const movies = (data.results || []).filter(Boolean).map(this.transformMovie)
       this.setState({
         trendingMovies: movies,
         trendingStatus: apiStatusConstants.success,
@@ -64,7 +64,7 @@ class HomeRoute extends Component {
     this.setState({topRatedStatus: apiStatusConstants.loading})
     try {
       const data = await fetchFromTMDB('https://api.themoviedb.org/3/movie/top_rated')
-      const movies = data.results.map(this.transformMovie)
+      const movies = (data.results || []).filter(Boolean).map(this.transformMovie)
       this.setState({
         topRatedMovies: movies,
         topRatedStatus: apiStatusConstants.success,
@@ -78,8 +78,8 @@ class HomeRoute extends Component {
     this.setState({originalsStatus: apiStatusConstants.loading})
     try {
       const data = await fetchFromTMDB('https://api.themoviedb.org/3/discover/tv?with_networks=213')
-      const movies = data.results.map(this.transformMovie)
-      const randomIndex = Math.floor(Math.random() * movies.length)
+      const movies = (data.results || []).filter(Boolean).map(this.transformMovie)
+      const randomIndex = movies.length > 0 ? Math.floor(Math.random() * movies.length) : 0
       const heroMovie = movies[randomIndex]
       this.setState({
         originalsMovies: movies,

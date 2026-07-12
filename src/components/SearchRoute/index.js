@@ -75,7 +75,8 @@ class SearchRoute extends Component {
     const url = `https://api.themoviedb.org/3/search/multi?query=${searchValue}`
     try {
       const data = await fetchFromTMDB(url)
-      const movies = data.results
+      const movies = (data.results || [])
+        .filter(Boolean)
         .filter(movie => movie.poster_path)
         .map(movie => ({
           id: movie.id,
