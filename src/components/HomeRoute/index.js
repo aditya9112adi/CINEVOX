@@ -47,7 +47,7 @@ class HomeRoute extends Component {
   })
 
   fetchTrendingMovies = async () => {
-    this.setState({trendingStatus: apiStatusConstants.loading})
+    this.setState({trendingStatus: apiStatusConstants.loading, errorMsg: ''})
     try {
       const data = await fetchFromTMDB('https://api.themoviedb.org/3/trending/all/day')
       const movies = (data.results || []).filter(Boolean).map(this.transformMovie)
@@ -55,8 +55,8 @@ class HomeRoute extends Component {
         trendingMovies: movies,
         trendingStatus: apiStatusConstants.success,
       })
-    } catch {
-      this.setState({trendingStatus: apiStatusConstants.failure})
+    } catch (error) {
+      this.setState({trendingStatus: apiStatusConstants.failure, errorMsg: error.message})
     }
   }
 
@@ -69,8 +69,8 @@ class HomeRoute extends Component {
         topRatedMovies: movies,
         topRatedStatus: apiStatusConstants.success,
       })
-    } catch {
-      this.setState({topRatedStatus: apiStatusConstants.failure})
+    } catch (error) {
+      this.setState({topRatedStatus: apiStatusConstants.failure, errorMsg: error.message})
     }
   }
 
@@ -88,8 +88,8 @@ class HomeRoute extends Component {
         heroTitle: heroMovie ? heroMovie.title : '',
         heroOverview: heroMovie ? heroMovie.overview : '',
       })
-    } catch {
-      this.setState({originalsStatus: apiStatusConstants.failure})
+    } catch (error) {
+      this.setState({originalsStatus: apiStatusConstants.failure, errorMsg: error.message})
     }
   }
 
@@ -105,7 +105,12 @@ class HomeRoute extends Component {
           </div>
         )
       case apiStatusConstants.failure:
-        return <FailureView onRetry={onRetry} />
+        return (
+          <div style={{ textAlign: 'center', color: 'red', marginTop: '20px' }}>
+            <p>API Error: {this.state.errorMsg || 'Failed to load data.'}</p>
+            <FailureView onRetry={onRetry} />
+          </div>
+        )
       default:
         return null
     }
