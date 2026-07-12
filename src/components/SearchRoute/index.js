@@ -1,3 +1,4 @@
+// Cache buster for ESLint
 import React, {Component} from 'react'
 import {Link, withRouter} from 'react-router-dom'
 import {HiOutlineSearch} from 'react-icons/hi'

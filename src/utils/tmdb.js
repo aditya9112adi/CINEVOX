@@ -14,7 +14,12 @@ export const fetchFromTMDB = async endpoint => {
   if (!response.ok) {
     throw new Error('Failed to fetch from TMDB')
   }
-  return response.json()
+  const data = await response.json()
+  // Defensive check: if it's an object but missing results array when expected
+  if (data && typeof data === 'object' && !('results' in data) && endpoint.includes('trending')) {
+    data.results = []
+  }
+  return data
 }
 
 export default TMDB_API_KEY
