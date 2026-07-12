@@ -6,7 +6,6 @@ import MovieSlider from '../MovieSlider'
 import LoaderView from '../LoaderView'
 import FailureView from '../FailureView'
 import VideoPlayer from '../VideoPlayer'
-import Cookies from 'js-cookie'
 import './index.css'
 
 const apiStatusConstants = {
